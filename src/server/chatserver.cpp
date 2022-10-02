@@ -28,7 +28,7 @@ ChatServer::ChatServer(EventLoop *loop,
 // 启动服务
 void ChatServer::start()
 {
-    _server.start();
+    _server.start();            // 这里启动的就是线程。
 }
 
 // 上报链接相关信息的回调函数
@@ -42,7 +42,7 @@ void ChatServer::onConnection(const TcpConnectionPtr &conn)
     }
 }
 
-// 上报读写事件相关信息的回调函数
+// 上报读写事件相关信息的回调函数，这个时候就可以从对应的 buffer 中取数据。
 void ChatServer::onMessage(const TcpConnectionPtr &conn,
                            Buffer *buffer,
                            Timestamp time)
@@ -56,8 +56,8 @@ void ChatServer::onMessage(const TcpConnectionPtr &conn,
 
     // 数据的反序列化
     json js = json::parse(buf);
-    // 达到的目的：完全解耦网络模块的代码和业务模块的代码
-    // 通过js["msgid"] 获取=》业务handler=》conn  js  time
+    // 达到的目的：解耦网络模块的代码和业务模块的代码
+    // 通过js["msgid"] 获取=》业务handler=》conn  js  time，这个到底是线程单例还是？因为要用私有成员。
     auto msgHandler = ChatService::instance()->getHandler(js["msgid"].get<int>());
     // 回调消息绑定好的事件处理器，来执行相应的业务处理
     msgHandler(conn, js, time);

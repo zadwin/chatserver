@@ -18,7 +18,7 @@ void OfflineMsgModel::insert(int userid, string msg)
 // 删除用户的离线消息
 void OfflineMsgModel::remove(int userid)
 {
-    // 1.组装sql语句
+    // 1. 组装sql语句
     char sql[1024] = {0};
     sprintf(sql, "delete from offlinemessage where userid=%d", userid);
 

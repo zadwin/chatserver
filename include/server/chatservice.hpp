@@ -56,16 +56,16 @@ private:
 
     // 存储消息id和其对应的业务处理方法
     unordered_map<int, MsgHandler> _msgHandlerMap;
-    // 存储在线用户的通信连接
+    // 存储在线用户的通信连接，每一个 TcpConnection 它就包含了对应的处理线程信息。
     unordered_map<int, TcpConnectionPtr> _userConnMap;
     // 定义互斥锁，保证_userConnMap的线程安全
     mutex _connMutex;
 
     // 数据操作类对象
-    UserModel _userModel;
-    OfflineMsgModel _offlineMsgModel;
-    FriendModel _friendModel;
-    GroupModel _groupModel;
+    UserModel _userModel;                   // 用户信息。只是取执行函数。
+    OfflineMsgModel _offlineMsgModel; // 离线消息。
+    FriendModel _friendModel;              // 好友。
+    GroupModel _groupModel;              // 群组。
 
     // redis操作对象
     Redis _redis;

@@ -23,14 +23,14 @@ int main(int argc, char **argv)
     char *ip = argv[1];
     uint16_t port = atoi(argv[2]);
 
-    signal(SIGINT, resetHandler);
+    signal(SIGINT, resetHandler);   // 处理信号的。
 
-    EventLoop loop;
-    InetAddress addr(ip, port);
-    ChatServer server(&loop, addr, "ChatServer");
-
-    server.start();
-    loop.loop();
+    EventLoop loop;                 // 一个IO线程
+    InetAddress addr(ip, port);   // 服务端的监听端口。
+    ChatServer server(&loop, addr, "ChatServer");   // 聊天服务器
+    // 服务器启动。
+    server.start();         // 启动的是 IO 线程池。
+    loop.loop();            // 这里 loop相当于就是主 IO 线程。
 
     return 0;
 }

@@ -15,11 +15,11 @@ public:
                const InetAddress &listenAddr,
                const string &nameArg);
 
-    // 启动服务
+    // 启动服务。
     void start();
 
 private:
-    // 上报链接相关信息的回调函数
+    // 上报连接到来相关信息的回调函数
     void onConnection(const TcpConnectionPtr &);
 
     // 上报读写事件相关信息的回调函数

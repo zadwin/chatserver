@@ -5,7 +5,7 @@
 using namespace std;
 using namespace muduo;
 
-// 获取单例对象的接口函数
+// 获取单例对象的接口函数，因为一个服务器它只有需要有一个实例对象。
 ChatService *ChatService::instance()
 {
     static ChatService service;
@@ -266,7 +266,7 @@ void ChatService::oneChat(const TcpConnectionPtr &conn, json &js, Timestamp time
     User user = _userModel.query(toid);
     if (user.getState() == "online")
     {
-        _redis.publish(toid, js.dump());
+        _redis.publish(toid, js.dump());    // 防止不在同一台机器上。
         return;
     }
 
@@ -341,7 +341,8 @@ void ChatService::groupChat(const TcpConnectionPtr &conn, json &js, Timestamp ti
     }
 }
 
-// 从redis消息队列中获取订阅的消息
+// 从redis消息队列中获取订阅的消息，这一个怎么发送到对应的 chatserver 中。
+// 其实这里就已经在 chatserver 中了，只不过这里的线程不是主线程了，因此发送也是可以通过这个线程去处理的。最后都交给网络库了。
 void ChatService::handleRedisSubscribeMessage(int userid, string msg)
 {
     lock_guard<mutex> lock(_connMutex);

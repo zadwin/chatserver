@@ -22,7 +22,7 @@ Redis::~Redis()
 
 bool Redis::connect()
 {
-    // 负责publish发布消息的上下文连接
+    // 负责 publish 发布消息的上下文连接
     _publish_context = redisConnect("127.0.0.1", 6379);
     if (nullptr == _publish_context)
     {
@@ -30,7 +30,7 @@ bool Redis::connect()
         return false;
     }
 
-    // 负责subscribe订阅消息的上下文连接
+    // 负责 subscribe 订阅消息的上下文连接
     _subcribe_context = redisConnect("127.0.0.1", 6379);
     if (nullptr == _subcribe_context)
     {
@@ -38,7 +38,8 @@ bool Redis::connect()
         return false;
     }
 
-    // 在单独的线程中，监听通道上的事件，有消息给业务层进行上报
+    // 在单独的线程中，监听通道上的事件，有消息给业务层进行上报。
+    // 这里其实就是解决 subscribe 阻塞的问题，因此多用了一个线程去专门监听该事件。
     thread t([&]() {
         observer_channel_message();
     });
@@ -113,12 +114,13 @@ bool Redis::unsubscribe(int channel)
 void Redis::observer_channel_message()
 {
     redisReply *reply = nullptr;
+    // 在这里以循环阻塞的方式去等待消息的到来。会去对应订阅的地方去判断是否有消息。
     while (REDIS_OK == redisGetReply(this->_subcribe_context, (void **)&reply))
     {
         // 订阅收到的消息是一个带三元素的数组
         if (reply != nullptr && reply->element[2] != nullptr && reply->element[2]->str != nullptr)
         {
-            // 给业务层上报通道上发生的消息
+            // 给业务层上报通道上发生的消息，也就是给对应的 chatserver
             _notify_message_handler(atoi(reply->element[1]->str) , reply->element[2]->str);
         }
 

@@ -16,7 +16,7 @@ public:
     Redis();
     ~Redis();
 
-    // 连接redis服务器 
+    // 连接redis服务器
     bool connect();
 
     // 向redis指定的通道channel发布消息
@@ -31,17 +31,19 @@ public:
     // 在独立线程中接收订阅通道中的消息
     void observer_channel_message();
 
-    // 初始化向业务层上报通道消息的回调对象
+    // 初始化向业务层上报通道消息的回调对象，redis 检测到有消息到来，这个时候就需要向 chatserver 通知。
+    // 因此需要先注册，然后才能通知。
     void init_notify_handler(function<void(int, string)> fn);
 
 private:
+    // 注意：这里必须要有两个上下文，因为会 subscribe 上下文是会阻塞的。
     // hiredis同步上下文对象，负责publish消息
     redisContext *_publish_context;
 
     // hiredis同步上下文对象，负责subscribe消息
     redisContext *_subcribe_context;
 
-    // 回调操作，收到订阅的消息，给service层上报
+    // 回调操作，收到订阅的消息，给service层上报。
     function<void(int, string)> _notify_message_handler;
 };
 

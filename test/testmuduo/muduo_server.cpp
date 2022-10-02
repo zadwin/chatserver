@@ -70,7 +70,7 @@ private:
     {
         string buf = buffer->retrieveAllAsString();
         cout << "recv data:" << buf << " time:" << time.toFormattedString() << endl;
-        conn->send(buf);
+        conn->send(buf);        // 通过其他线程调用send，然后才是希望通过 IO 线程去发送数据。
     }
 
     TcpServer _server; // #1
